@@ -23,7 +23,15 @@
     "commands": [{
       "command": "js-unity-snippets.helloWorld",
       "title": "Hello World"
-    }]
+    }],
+    "keybindings":[
+      {
+        "command": "unityAwareRename",
+        "key": "F2",
+        "when": "editorTextFocus && editorLangId == csharp"
+      }
+    ]
+
   },
   "scripts": {
     "lint": "eslint .",

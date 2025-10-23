@@ -9,7 +9,7 @@ class UnityRenameProvider {
         this.context = context;
         console.log('UnityRenameProvider constructor called');
     }
-    
+   
     prepareRename(document, position, _token) {
         console.log('=== prepareRename called ===');
         console.log('Document:', document.fileName);
@@ -19,15 +19,12 @@ class UnityRenameProvider {
         if (!text.includes('ScriptableObject')) {
             return null; // Let default rename handle it
         }
-
+        
         // Get the symbol at position
         const range = document.getWordRangeAtPosition(position);
         const oldName = document.getText(range);
-        
-        // Check if it's a serialized field
-        if (!this.isSerializedField(document, position)) {
-            return null;
-        }
+
+        console.log('rename progress 1, '+ range + " " + oldName);
 
         // Store the old name for later
         pendingRename = {
@@ -44,7 +41,7 @@ class UnityRenameProvider {
         // We'll run our script after
         if (pendingRename) {
             console.log('rename edits request 2');
-            
+
             // Schedule the Unity asset update
             setTimeout(() => {
                 console.log('rename edits request 3');
@@ -60,29 +57,10 @@ class UnityRenameProvider {
         return null; // Let default rename happen
     }
 
-    isSerializedField(document, position) {
-        // Check if the field has [SerializeField] or is public
-        const line = position.line;
-        let checkLine = line;
-        
-        // Look backwards for attributes
-        while (checkLine > 0) {
-            const lineText = document.lineAt(checkLine).text.trim();
-            if (lineText.includes('[SerializeField]')) return true;
-            if (lineText.includes('public') && lineText.includes(document.getText(document.getWordRangeAtPosition(position)))) {
-                return true;
-            }
-            if (lineText.includes('private') || lineText.includes('class')) break;
-            checkLine--;
-        }
-        
-        return false;
-    }
-
     updateUnityAssets(scriptPath, oldName, newName) {
-        vscode.window.showInformationMessage("started working")
-        const pythonScript = path.join(this.context.extensionPath, 'rename_field.py');
-
+        vscode.window.showInformationMessage("changing name:" + oldName + " to " + newName);
+        const pythonScript = path.join(this.context.extensionPath, '/src/rename_field.py');
+        console.log(pythonScript)
         const python = spawn('python', [pythonScript, scriptPath, oldName, newName]);
 
         python.stdout.on('data', (data) => {
