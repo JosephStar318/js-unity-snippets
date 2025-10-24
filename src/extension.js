@@ -5,30 +5,34 @@ const UnityRenameProvider = require('./UnityRenameProvider');
  */
 function activate(context) {
 	console.log('Extension "js-unity-snippets" is now active!');
-
-	// // Register the Unity rename provider
-	// const renameProvider = vscode.languages.registerRenameProvider(
-	// 	{ scheme: 'file', language: 'csharp' },
-	// 	new UnityRenameProvider(context)
-	// );
-	// context.subscriptions.push(renameProvider);
-
 	vscode.commands.registerCommand('unityAwareRename', async () => {
 		const editor = vscode.window.activeTextEditor;
 		if (!editor) return;
 		const document = editor.document;
 		const position = editor.selection.active;
 		const provider = new UnityRenameProvider(context);
-		provider.prepareRename(document, position);
-		await vscode.commands.executeCommand('editor.action.rename');
+		if (!provider.prepareRename(document, position)) {
+			console.log("Exiting... File was not a scriptable object")
+			return;
+		}
 		const wordRange = document.getWordRangeAtPosition(position);
 		const currentName = wordRange ? document.getText(wordRange) : '';
-		const newName = await vscode.window.showInputBox({ prompt: 'Also change serialized field names to', value: currentName });
-		if (!newName || newName === currentName) return;
-		const edit = await provider.provideRenameEdits(document, position, newName);
-		if (edit) {
-			await vscode.workspace.applyEdit(edit);
-			await document.save();
+		await vscode.commands.executeCommand('editor.action.rename');
+		await new Promise(resolve => setTimeout(resolve, 100));
+
+		const newRange = document.getWordRangeAtPosition(position);
+		var changedText = document.getText(newRange);
+		if (changedText !== currentName) {
+			const newName = await vscode.window.showInputBox({ prompt: 'Also change serialized field names to', value: changedText });
+			if (!newName || newName === currentName) {
+				console.log("Exitting... Given name was not valid or the same")
+				return;
+			}
+			const edit = provider.provideRenameEdits(document.uri.fsPath, currentName, newName);
+			if (edit) {
+				await vscode.workspace.applyEdit(edit);
+				await document.save();
+			}
 		}
 	});
 }

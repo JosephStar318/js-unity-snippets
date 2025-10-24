@@ -7,11 +7,10 @@ let pendingRename = null;
 class UnityRenameProvider {
     constructor(context) {
         this.context = context;
-        console.log('UnityRenameProvider constructor called');
     }
    
     prepareRename(document, position, _token) {
-        console.log('=== prepareRename called ===');
+        console.log('=== Preparing Rename ===');
         console.log('Document:', document.fileName);
         console.log('Position:', position.line, position.character);
         // Check if this is a Unity ScriptableObject
@@ -24,8 +23,6 @@ class UnityRenameProvider {
         const range = document.getWordRangeAtPosition(position);
         const oldName = document.getText(range);
 
-        console.log('rename progress 1, '+ range + " " + oldName);
-
         // Store the old name for later
         pendingRename = {
             oldName,
@@ -36,15 +33,8 @@ class UnityRenameProvider {
     }
 
     provideRenameEdits(document, position, newName, _token) {
-        console.log('rename edits request');
-        // Let VSCode handle the C# rename first
-        // We'll run our script after
         if (pendingRename) {
-            console.log('rename edits request 2');
-
-            // Schedule the Unity asset update
             setTimeout(() => {
-                console.log('rename edits request 3');
                 this.updateUnityAssets(
                     pendingRename.scriptPath,
                     pendingRename.oldName,
@@ -58,9 +48,9 @@ class UnityRenameProvider {
     }
 
     updateUnityAssets(scriptPath, oldName, newName) {
-        vscode.window.showInformationMessage("changing name:" + oldName + " to " + newName);
         const pythonScript = path.join(this.context.extensionPath, '/src/rename_field.py');
-        console.log(pythonScript)
+        console.log('Rename script running for: '+ oldName + " -> " + newName);
+
         const python = spawn('python', [pythonScript, scriptPath, oldName, newName]);
 
         python.stdout.on('data', (data) => {
