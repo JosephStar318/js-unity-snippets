@@ -2,7 +2,7 @@
   "name": "js-unity-snippets",
   "displayName": "unity-snippets",
   "description": "Snippets for Unity C# scripts",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "repository": {"url": "https://github.com/JosephStar318/js-unity-snippets"},
   "engines": {
     "vscode": "^1.104.0"
