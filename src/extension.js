@@ -7,12 +7,17 @@ function activate(context) {
 	console.log('Extension "js-unity-snippets" is now active!');
 	vscode.commands.registerCommand('unityAwareRename', async () => {
 		const editor = vscode.window.activeTextEditor;
-		if (!editor) return;
+		if (!editor)
+		{
+			await vscode.commands.executeCommand('editor.action.rename');
+			return;
+		}
 		const document = editor.document;
 		const position = editor.selection.active;
 		const provider = new UnityRenameProvider(context);
 		if (!provider.prepareRename(document, position)) {
 			console.log("Exiting... File was not a scriptable object")
+			await vscode.commands.executeCommand('editor.action.rename');
 			return;
 		}
 		const wordRange = document.getWordRangeAtPosition(position);
