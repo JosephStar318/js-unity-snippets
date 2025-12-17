@@ -2,8 +2,10 @@
   "name": "js-unity-snippets",
   "displayName": "unity-snippets",
   "description": "Snippets for Unity C# scripts",
-  "version": "0.0.2",
-  "repository": {"url": "https://github.com/JosephStar318/js-unity-snippets"},
+  "version": "0.0.3",
+  "repository": {
+    "url": "https://github.com/JosephStar318/js-unity-snippets"
+  },
   "engines": {
     "vscode": "^1.104.0"
   },
@@ -21,18 +23,32 @@
         "path": "./snippets/unity.code-snippets"
       }
     ],
-    "commands": [{
-      "command": "js-unity-snippets.helloWorld",
-      "title": "Hello World"
-    }],
-    "keybindings":[
+    "commands": [
+      {
+        "command": "js-unity-snippets.helloWorld",
+        "title": "Hello World"
+      },
+      {
+        "command": "csTools.createInheritedClass",
+        "title": "Create Inherited Class"
+      }
+    ],
+    "menus": {
+       "explorer/context": [
+        {
+          "command": "csTools.createInheritedClass",
+          "when": "resourceExtname == .cs",
+          "group": "navigation"
+        }
+      ]
+    },
+    "keybindings": [
       {
         "command": "unityAwareRename",
         "key": "F2",
         "when": "editorTextFocus && editorLangId == csharp"
       }
     ]
-
   },
   "scripts": {
     "lint": "eslint .",
